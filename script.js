@@ -1,7 +1,7 @@
 'use strict';
 
 /* ==========================================================================
-   [Business Name] - vanilla interactions
+   Saba Plumbing & Heating - vanilla interactions
    1. Shrinking header (rAF-scoped, state-guarded)
    2. Floating emergency call toggle
    3. Seamless infinite review carousel with manual controls and drag support
