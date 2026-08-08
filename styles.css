@@ -535,7 +535,26 @@ button { font-family: inherit; }
 
 .process { background: var(--color-white); }
 .process-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--color-ink); border: 1px solid var(--color-ink); border-radius: 10px; overflow: hidden; }
-.process-step { background: var(--color-mist); padding: clamp(1.1rem, 2vw, 1.6rem); min-width: 0; }
+.process-step { position: relative; background: var(--color-mist); padding: clamp(1.1rem, 2vw, 1.6rem); min-width: 0; }
+
+/* Subtle gold connector triangles between process steps (right-pointing on
+   multi-column rows). Row-ending cards get their arrow suppressed below so
+   no triangle points off into the void. */
+.process-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -3px; /* straddle the 1px hairline seam */
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid var(--color-gold);
+  transform: translateY(-50%);
+  z-index: 1;
+  opacity: 0.9;
+  pointer-events: none;
+}
 .process-step .service-num { display: block; margin-bottom: 0.75rem; font-size: 0.68rem; }
 .process-step h3 { font-size: clamp(1rem, 0.65vw + 0.78rem, 1.25rem); line-height: 1.12; margin-bottom: 0.75rem; }
 .process-step > p { font-size: clamp(0.76rem, 0.22vw + 0.7rem, 0.84rem); line-height: 1.48; }
@@ -911,6 +930,8 @@ html.motion-active .js-reveal.js-reveal-blur { filter: blur(6px); }
   .header-inner { gap: 0.75rem; }
   .service-area-inline { grid-template-columns: 1fr; }
   .process-grid { grid-template-columns: repeat(3, 1fr); }
+  /* 3-col wrap: drop the arrow off the end of each row (steps 3) */
+  .process-step:nth-child(3n):not(:last-child)::after { display: none; }
   .services-grid { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: repeat(2, 1fr); }
   .section-head { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
@@ -922,6 +943,10 @@ html.motion-active .js-reveal.js-reveal-blur { filter: blur(6px); }
 
 @media (max-width: 900px) {
   .process-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 2-col wrap: drop the arrow off the end of each row (steps 2 and 4), but
+     lift the 3-col suppression so step 3's arrow can point at step 4. */
+  .process-step:nth-child(2n):not(:last-child)::after { display: none; }
+  .process-step:nth-child(3n):not(:last-child)::after { display: block; }
   .hero { padding-top: calc(var(--header-h) + 3.5rem); }
   .floating-call { display: none; }
   .header-cta { display: none; }
@@ -961,9 +986,66 @@ html.motion-active .js-reveal.js-reveal-blur { filter: blur(6px); }
 }
 
 @media (max-width: 640px) {
+  :root {
+    /* Mobile gets a tighter reading rhythm. Desktop keeps the original
+       generous editorial spacing above. */
+    --section-pad: clamp(2.75rem, 9vw, 3.5rem);
+    --header-h: 92px;
+  }
+
   .header-inner { gap: 0.75rem; }
   .service-groups, .process-grid { grid-template-columns: 1fr; }
-  .service-group ul { grid-template-columns: 1fr; }
+
+  /* Mobile-only compact composition: the two text-heavy grids become
+     horizontal snap rails instead of five tall rows. The clipped next card
+     is an intentional affordance that says "swipe for more" without adding
+     another label to the page. */
+  .service-groups,
+  .process-grid {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0.25rem;
+    scrollbar-width: none;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0.125rem 0.25rem 0.75rem;
+    margin-inline: -0.25rem;
+  }
+  .service-groups::-webkit-scrollbar,
+  .process-grid::-webkit-scrollbar { display: none; }
+  .service-group,
+  .process-step {
+    flex: 0 0 min(86vw, 22rem);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    box-shadow: var(--shadow-1);
+  }
+  .service-group { padding: 1.5rem; }
+  .process-step { padding: 1.25rem; }
+  /* The process rail is horizontal on phones, so restore its small
+     right-pointing connectors instead of the stacked down arrows. */
+  .process-step:not(:last-child)::after {
+    top: 50%;
+    right: -0.55rem;
+    bottom: auto;
+    left: auto;
+    transform: translateY(-50%);
+    border-top: 4px solid transparent;
+    border-right: 0;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid var(--color-gold);
+  }
+  /* Each service card is wide enough for a two-column checklist on a phone.
+     This keeps the long Plumbing list useful without making its card
+     unnecessarily tall. */
+  .service-group ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
 
   .header-brand { flex: 1 1 auto; min-width: 0; flex-shrink: 1; }
   .company-name {
@@ -979,6 +1061,13 @@ html.motion-active .js-reveal.js-reveal-blur { filter: blur(6px); }
   .review-card { flex-basis: 85%; }
   .footer-grid { grid-template-columns: 1fr; gap: 2.5rem; }
   .footer-bottom-inner { flex-direction: column; align-items: flex-start; }
+  .hero { padding-top: calc(var(--header-h) + 1.5rem); }
   .hero-cta .btn { width: 100%; }
   .carousel-hint { display: none; }
+}
+
+@media (max-width: 360px) {
+  /* Give very narrow phones a calmer checklist column rather than forcing
+     long service names into cramped two-column cells. */
+  .service-group ul { grid-template-columns: 1fr; }
 }
