@@ -1020,7 +1020,11 @@ html.motion-active .js-reveal.js-reveal-blur { filter: blur(6px); }
     display: flex;
     gap: 0.75rem;
     overflow-x: auto;
-    overflow-y: visible;
+    /* `overflow-y: visible` would compute to `auto` next to a non-visible x
+       axis, making the rail a two-axis scroll container that can be dragged
+       up and down. Hidden keeps the rail strictly horizontal so vertical
+       swipes scroll the page instead. */
+    overflow-y: hidden;
     overscroll-behavior-x: contain;
     touch-action: pan-x; /* horizontal drags scroll the rail; vertical pans scroll the page */
     scroll-snap-type: x mandatory;
@@ -1039,6 +1043,9 @@ html.motion-active .js-reveal.js-reveal-blur { filter: blur(6px); }
     flex: 0 0 min(86vw, 22rem);
     scroll-snap-align: start;
     scroll-snap-stop: always;
+    /* Cards can be the touch target: repeat the pan-x restriction on them so
+       the vertical lock also holds when a drag starts on a card. */
+    touch-action: pan-x;
     border: 1px solid var(--color-line);
     border-radius: 10px;
     box-shadow: var(--shadow-1);
