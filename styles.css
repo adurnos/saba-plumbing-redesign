@@ -674,6 +674,11 @@ button { font-family: inherit; }
 .carousel-btn:active { transform: translateY(0); }
 .carousel-hint { font-size: 0.8rem; color: var(--color-muted); margin-left: var(--space-2); }
 
+/* Mobile-only "scroll left and right" hint under the card rails. Hidden on
+   desktop; the phone media query reveals it and animates the arrows. */
+.swipe-hint { display: none; }
+.swipe-hint-arrow { flex-shrink: 0; }
+
 /* --------------------------------------------------------------------------
    10. Founders story + transparent guarantees
    -------------------------------------------------------------------------- */
@@ -896,6 +901,16 @@ button { font-family: inherit; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Gentle nudge for the phone-only "scroll left and right" hint arrows. */
+@keyframes swipe-nudge-left {
+  0%, 100% { transform: translateX(0); opacity: 0.45; }
+  50%      { transform: translateX(-5px); opacity: 1; }
+}
+@keyframes swipe-nudge-right {
+  0%, 100% { transform: translateX(0); opacity: 0.45; }
+  50%      { transform: translateX(5px); opacity: 1; }
+}
+
 /* Scroll-reveal gating: content is visible by DEFAULT. The module script in
    index.html adds html.motion-active only after Motion has loaded and the
    reveal logic is live, so if the CDN is ever unreachable no element is
@@ -1007,6 +1022,7 @@ html.motion-active .js-reveal.js-reveal-blur { filter: blur(6px); }
     overflow-x: auto;
     overflow-y: visible;
     overscroll-behavior-x: contain;
+    touch-action: pan-x; /* horizontal drags scroll the rail; vertical pans scroll the page */
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 0.25rem;
     scrollbar-width: none;
@@ -1064,10 +1080,56 @@ html.motion-active .js-reveal.js-reveal-blur { filter: blur(6px); }
   .hero { padding-top: calc(var(--header-h) + 1.5rem); }
   .hero-cta .btn { width: 100%; }
   .carousel-hint { display: none; }
+
+  /* "Where we serve" — centered and slightly smaller on phones */
+  .service-area-inline {
+    text-align: center;
+    padding: 1.25rem 1.5rem;
+  }
+  .service-area-inline h3 { margin-left: 0; font-size: clamp(1.2rem, 1vw + 1.05rem, 1.4rem); }
+  .service-area-inline p { font-size: 0.87rem; }
+
+  /* Swipe hint under each card rail: subtle nudge arrows + caption */
+  .swipe-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: var(--space-3);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--color-muted);
+  }
+  .swipe-hint-arrow {
+    width: 0.95rem;
+    height: 0.95rem;
+    color: var(--color-navy);
+    /* A short, finite nudge reads as a one-time prompt instead of permanent
+       decoration; the arrows stay visible, just still. */
+    animation: swipe-nudge 1.8s var(--ease-premium) 5;
+  }
+  .swipe-hint-arrow-left { animation-name: swipe-nudge-left; }
+  .swipe-hint-arrow-right { animation-name: swipe-nudge-right; }
+  .swipe-hint.is-settled .swipe-hint-arrow { animation: none; opacity: 0.6; }
+
+  /* Compressed footer — tighter rhythm, redundant blurb hidden on phones */
+  .footer-grid { gap: 1.75rem; padding-block: 2.5rem 2rem; }
+  .footer-blurb { display: none; }
+  .footer-phone-link { font-size: 1.2rem; }
+  .footer-sms-link { margin-top: 0.5rem; font-size: 0.85rem; }
+  .footer-heading { margin-bottom: 0.75rem; font-size: 0.7rem; }
+  .footer-address { font-size: 0.85rem; }
+  .footer-hours { margin-top: 0.75rem; font-size: 0.8rem; }
+  .footer-list li { padding-block: 0.35rem; font-size: 0.84rem; }
+  .footer-areas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1rem; }
+  .footer-bottom-inner { padding-block: 1.25rem; font-size: 0.75rem; }
 }
 
 @media (max-width: 360px) {
   /* Give very narrow phones a calmer checklist column rather than forcing
      long service names into cramped two-column cells. */
   .service-group ul { grid-template-columns: 1fr; }
+  /* Same for the compact footer service-areas list. */
+  .footer-areas { grid-template-columns: 1fr; }
 }

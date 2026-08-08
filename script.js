@@ -5,7 +5,8 @@
    1. Shrinking header (rAF-scoped, state-guarded)
    2. Floating emergency call toggle
    3. Seamless infinite review carousel with manual controls and drag support
-   4. Copyright year
+   4. Mobile swipe-hint settle (phones only)
+   5. Copyright year
    ========================================================================== */
 
 (function () {
@@ -194,7 +195,18 @@
     home();
   }
 
-  /* ---- 4. Copyright year ------------------------------------------------ */
+  /* ---- 4. Mobile swipe-hints — settle the nudge animation after the
+     user's first swipe of a phone card rail ------------------------------- */
+
+  Array.prototype.forEach.call(document.querySelectorAll('.service-groups, .process-grid'), function (rail) {
+    var hint = rail.nextElementSibling;
+    if (!hint || !hint.classList || !hint.classList.contains('swipe-hint')) return;
+    rail.addEventListener('scroll', function () {
+      hint.classList.add('is-settled');
+    }, { once: true, passive: true });
+  });
+
+  /* ---- 5. Copyright year ------------------------------------------------ */
 
   var yearEl = document.getElementById('year');
   if (yearEl) {
